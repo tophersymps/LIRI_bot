@@ -10,7 +10,6 @@ var Spotify = require('node-spotify-api');
 var spotify = new Spotify(keys.spotify);
 var client = new Twitter(keys.twitter);
 var omdb = (keys.omdb.api_key);
-console.log(omdb);
 
 var inputString = process.argv;
 var action = inputString[2];
@@ -22,7 +21,7 @@ var action = inputString[2];
 // 1. 'my-tweets' -> Show last 20 tweets and when they were tweeted...
 var myTweets = [];
   
-var printTweets = function() {
+function printTweets() {
   console.log("Here are your 20 most recent tweets!\n");
   var params = {
     screen_name: 'devLiriBot18',
@@ -45,12 +44,6 @@ var printTweets = function() {
     }
   });
 };   
-  // Below code sends tweet:
-  // client.post("statuses/update", {status: "Here's Johnny!"},  function(error, tweet, response) {
-  //   if(error) throw error;
-  //   console.log(tweet);  // Tweet body. 
-  //   console.log(response);  // Raw response object. 
-  // });
 
 //--------------------------------------------------------------------------------------
   // 2. 'spotify-this-song' -> Show information about given song
@@ -63,28 +56,39 @@ var printTweets = function() {
 
 //--------------------------------------------------------------------------------------
   // 3. 'movie-this' -> Output information about given movie
-  var queryURL = "http://www.omdbapi.com/?apikey=" + omdb;
-  console.log(queryURL);
-//   request("http://www.omdbapi.com/?t=remember+the+titans&y=&plot=short&apikey=trilogy", function(error, response, body) {
-
-//   // If the request is successful (i.e. if the response status code is 200)
-//   if (!error && response.statusCode === 200) {
-
-//     // Parse the body of the site and recover just the imdbRating
-//     // (Note: The syntax below for parsing isn't obvious. Just spend a few moments dissecting it).
-//     console.log("The movie's rating is: " + JSON.parse(body).imdbRating);
-//   }
-// });
-    //  -- Title of Movie
-    //  -- Year move came out
-    //  -- IMDB rating
-    //  -- Rotten Tomatoes rating
-    //  -- Country where the movie was produced
-    //  -- Language of movie
-    //  -- Plot of movie
-    //  -- Actors in the movie
-
-
+  var movieTitle = "";
+  
+  function movieThis() {
+    //this part can be used for song title too..
+    for (var i = 3; i < inputString.length; i++) {
+      if (i > 3 && i < inputString.length) {
+        movieTitle = movieTitle + "+" + inputString[i];
+      }
+      else {
+        movieTitle += inputString[i];
+      }
+    }
+    var queryURL = "http://www.omdbapi.com/?&t=" + movieTitle + "&plot=short&apikey=" + omdb;
+    console.log(queryURL);
+    request(queryURL, function(error, response, body) {
+      //"http://www.omdbapi.com/?t=remember+the+titans&y=&plot=short&apikey=trilogy"
+      // If the request is successful (i.e. if the response status code is 200)
+      if (!error && response.statusCode === 200) {
+        // Parse the body of the site and recover just the imdbRating
+        // (Note: The syntax below for parsing isn't obvious. Just spend a few moments dissecting it).
+        console.log("------------------------------------------------------");
+        console.log(" Here's information on the movie you requested:");
+        console.log(" Title: " + JSON.parse(body).Title);
+        console.log(" IMDB Rating: " + JSON.parse(body).imdbRating);
+        console.log(" Rotten Tomatoes Rating: " + JSON.parse(body).Ratings[1].Value);
+        console.log(" Produced in: " + JSON.parse(body).Country);
+        console.log(" Language: " + JSON.parse(body).Language);
+        console.log(" Plot: " + JSON.parse(body).Plot);
+        console.log(" Actors: " + JSON.parse(body).Actors);
+        console.log("------------------------------------------------------");
+      }
+    });
+  }; //end of OMDB function
 //--------------------------------------------------------------------------------------
   // 4. 'do-what-it-says' -> Using the 'fs' node package, LIRI will take the text
   //                         inside of random.txt and use it to call one of the commands
@@ -108,12 +112,14 @@ switch (action) {
   // case "spotify-this-song"
   //   spotifySong();
   // break;
-  // // 3. 'movie-this'
-  // case "movie-this"
-  //   omdbInfo();
-  // break;
+  // 3. 'movie-this'
+  case "movie-this":
+    movieThis();
+  break;
   // // 4. 'do-what-it-says'
   // case "do-what-it-says"
   //   simonSays();
   // break;
+  default:
+  console.log("Does not compute... Please use one of my built-in functions..");
 }
