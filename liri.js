@@ -2,7 +2,7 @@
 require("dotenv").config();
 //Personal Keys Access for Spotify and Twitter. You will have to set up your own API information within the .env file to run this application.
 var keys = require("./assets/javascript/keys.js");
-
+var fs = require("fs");
 var request = require('request');
 var Twitter = require("twitter");
 var Spotify = require('node-spotify-api');
@@ -17,28 +17,28 @@ var myTweets = [];
 var mediaTitle = "";
 
 //Actions:
-
-switch (action) {
-  // 1. 'my-tweets'
-  case "my-tweets":
-    printTweets();
-  break;
-  // 2. 'spotify-this-song'
-  case "spotify-this-song":
-    spotifySong();
-  break;
-  // 3. 'movie-this'
-  case "movie-this":
-    movieThis();
-  break;
-  // // 4. 'do-what-it-says'
-  // case "do-what-it-says"
-  //   simonSays();
-  // break;
-  default:
-  console.log("Does not compute... Please use one of my built-in functions..");
-}
-
+function theSwitcher() {
+  switch (action) {
+    // 1. 'my-tweets'
+    case "my-tweets":
+      printTweets();
+    break;
+    // 2. 'spotify-this-song'
+    case "spotify-this-song":
+      spotifySong();
+    break;
+    // 3. 'movie-this'
+    case "movie-this":
+      movieThis();
+    break;
+    // 4. 'do-what-it-says'
+    case "do-what-it-says":
+      simonSays();
+    break;
+    default:
+    console.log("Does not compute... Please use one of my built-in functions..");
+  }
+};
 // Media input conversions:
 function getMedia() {
   if (inputString.length <= 3 && action == "movie-this") {
@@ -96,8 +96,7 @@ function spotifySong() {
         console.log('Error occurred: ' + err);
         return;
     }
-
-    console.log(JSON.stringify(data, null, 3));
+    // else
     console.log("------------------------------------------------------");
     console.log(" Here's information on the song you requested:\n");
     console.log(" Artist: " + data.tracks.items[0].artists[0].name);
@@ -105,7 +104,6 @@ function spotifySong() {
     console.log(" Spotify Preview Link: " + data.tracks.items[0].preview_url);
     console.log(" Album: " + data.tracks.items[0].album.name);
     console.log("------------------------------------------------------");
-    // Do something with 'data' 
   });
 }; //end of spotifySong function
 
@@ -117,7 +115,6 @@ function movieThis() {
 
   var queryURL = "http://www.omdbapi.com/?&t=" + mediaTitle + "&plot=short&apikey=" + omdb;
   request(queryURL, function(error, response, body) {
-    //"http://www.omdbapi.com/?t=remember+the+titans&y=&plot=short&apikey=trilogy"
     // If the request is successful (i.e. if the response status code is 200)
     if (!error && response.statusCode === 200) {
       // Parse the body of the site and recover just the imdbRating
@@ -140,9 +137,23 @@ function movieThis() {
 // 4. 'do-what-it-says' -> Using the 'fs' node package, LIRI will take the text
 //                         inside of random.txt and use it to call one of the commands
 //  -- Default to run -> 'spotify-this-song' for "I Want it That Way,"
+function simonSays() {
 
+  // We will read the existing bank file
+  fs.readFile("./assets/random.txt", "utf8", function(err, data) {
+    if (err) {
+      return console.log(err);
+    }
 
+    // Break down all the numbers inside
+    simonSaid = data.split(",");
+    action = simonSaid[0];
+    mediaTitle = simonSaid[1];
+    theSwitcher();
+  });
+};
 
+theSwitcher();
 
 //--------------------------------------------------------------------------------------
 
