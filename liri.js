@@ -138,7 +138,6 @@ function movieThis() {
 //                         inside of random.txt and use it to call one of the commands
 //  -- Default to run -> 'spotify-this-song' for "I Want it That Way,"
 function simonSays() {
-
   // We will read the existing bank file
   fs.readFile("./assets/random.txt", "utf8", function(err, data) {
     if (err) {
@@ -151,8 +150,9 @@ function simonSays() {
     mediaTitle = simonSaid[1];
     theSwitcher();
   });
-};
+}; // End of simonSays function
 
+// initilize da script
 theSwitcher();
 
 //--------------------------------------------------------------------------------------
